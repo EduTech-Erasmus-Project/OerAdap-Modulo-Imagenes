@@ -81,6 +81,7 @@ class Data_Generator(Sequence):
         if img is not None:
             # Resize the image
             img = cv2.resize(src=img, dsize=(128, 128), interpolation=cv2.INTER_AREA)
+            img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 12)
             # Denoise the image
             # img = cv2.fastNlMeansDenoising(img, None, 10, 7, 21)
             # Normalize the image

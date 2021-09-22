@@ -75,10 +75,10 @@ def preprocess_image(directory):
         pass
 
 
-predicted_map = {0: 'FORMULA', 1: 'ILUSTRACION', 2: 'TABLA'}
+predicted_map = {0: 'CHART', 1: 'DIGITAL', 2: 'PHOTO'}
 
 files = os.listdir('test_images')
 for file in files:
     preprocessed_image = preprocess_image(f'test_images/{file}')
     preprocessed_image = preprocessed_image.reshape(-1, 128, 128, 1)
-    print('Filename: ' + file + '\t' + str(np.argmax(model.predict(preprocessed_image), axis=1)[0]))
+    print('Filename: ' + file + '\t' + predicted_map.get(np.argmax(model.predict(preprocessed_image), axis=1)[0]))
