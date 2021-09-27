@@ -80,10 +80,14 @@ class Data_Generator(Sequence):
         if img is not None:
             # Resize the image
             img = cv2.resize(src=img, dsize=(128, 128), interpolation=cv2.INTER_AREA)
-            img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 12)
-            # Denoise the image
-            # img = cv2.fastNlMeansDenoising(img, None, 10, 7, 21)
-            # Normalize the image
+            # img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 12)
+            gauss = cv2.GaussianBlur(img, (5, 5), 0)
+            canny = cv2.Canny(gauss, 50, 150)
+            cont, _ = cv2.findContours(canny.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_KCOS)
+            img = np.zeros(img.shape, dtype='uint8')
+            img.fill(255)
+            cv2.drawContours(img, cont, -1, (0, 0, 255), 2)
+
             img = img / 255
             img.shape += (1,)
             return img
@@ -93,7 +97,7 @@ class Data_Generator(Sequence):
 
 # Preprocess a single image and return an array.
 
-batch_size = 64
+batch_size = 32
 my_training_batch_generator = Data_Generator(x_train, y_train, batch_size)
 
 my_validation_batch_generator = Data_Generator(x_test, y_test, batch_size)

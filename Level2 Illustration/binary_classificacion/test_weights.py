@@ -68,4 +68,4 @@ files = os.listdir('test_images')
 for file in files:
     preprocessed_image = preprocess_image(f'test_images/{file}')
     preprocessed_image = preprocessed_image.reshape(-1, 128, 128, 1)
-    print('Filename: ' + file + '\t' + str(model.predict(preprocessed_image)))
+    print('Filename: ' + file + '\t' + str(model.predict(preprocessed_image)[0][0]))
