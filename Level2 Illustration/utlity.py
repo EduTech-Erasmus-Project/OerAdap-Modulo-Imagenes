@@ -32,4 +32,4 @@ read_photo()
 
 df = pandas.DataFrame.from_dict(image_path_directory.items())
 df.columns = ['path', 'class']
-df.to_csv('dataset.csv', index=False)
+df.to_csv('dataframe.csv', index=False)
