@@ -1,48 +1,35 @@
-import glob
 import os
 import pandas
 
-root_path = '/media/edutech-pc06/Elements1/DataSet/ClasificacionPorContenido/'
-parent_classes = [path for path in os.listdir(root_path) if '.' not in path]
-current_class = None
-image_path_dict = dict()
+root_path = '/home/edutech-pc06/Documentos/DATASETS/LVL1/'
+image_path_directory = dict()
 
 
-def read_formulas():
-    formulas = os.listdir(root_path+'formula_images')
-    for formula in formulas:
-        image_path_dict[root_path+f'formula_images/{formula}'] = 0
+def read_equations():
+    for root, dirs, files in os.walk(root_path+'/Equation'):
+        for file in files:
+            if '.json' not in file and '.html' not in file and '.py' not in file and '.md' not in file and '.pdf' not in file and '.txt' not in file:
+                image_path_directory[os.path.join(root, file)] = 0
 
 
-def read_illustrations():
-    parent = root_path+'Ilustraciones'
-    illustrations = os.listdir(parent)
-
-    for illustration in illustrations:
-        children = os.listdir(parent+f'/{illustration}')
-        for child in children:
-            read_inner_classes(parent+f'/{illustration}/{child}')
+def read_illustration():
+    for root, dirs, files in os.walk(root_path+'/Illustration'):
+        for file in files:
+            if '.json' not in file and '.html' not in file and '.py' not in file and '.md' not in file and '.pdf' not in file and '.txt' not in file:
+                    image_path_directory[os.path.join(root, file)] = 1
 
 
-def read_inner_classes(path):
-    leaf = os.listdir(path)
-    number_of_images = 0
-    for leaf in leaf:
-        if number_of_images < 63:
-            image_path_dict[path+f'/{leaf}'] = 1
-        number_of_images += 1
+def read_table():
+    for root, dirs, files in os.walk(root_path+'/Table'):
+        for file in files:
+            if '.json' not in file and '.html' not in file and '.py' not in file and '.md' not in file and '.pdf' not in file and '.txt' not in file:
+                image_path_directory[os.path.join(root, file)] = 2
 
 
-def read_tables():
-    tables = os.listdir(root_path + 'Tablas')
-    for table in tables:
-        image_path_dict[root_path + f'Tablas/{table}'] = 2
+read_equations()
+read_illustration()
+read_table()
 
-
-read_formulas()
-read_illustrations()
-read_tables()
-
-df = pandas.DataFrame.from_dict(image_path_dict.items())
+df = pandas.DataFrame.from_dict(image_path_directory.items())
 df.columns = ['path', 'class']
-df.to_csv(root_path+'dataframe.csv', index=False)
+df.to_csv('dataframe.csv', index=False)
