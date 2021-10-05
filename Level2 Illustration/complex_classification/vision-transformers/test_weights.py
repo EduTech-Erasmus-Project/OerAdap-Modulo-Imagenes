@@ -45,7 +45,7 @@ def preprocess_image(directory):
         # Resize the image
         img = cv2.resize(src=img, dsize=(256, 256), interpolation=cv2.INTER_AREA)
         # Denoise the image
-        img = cv2.fastNlMeansDenoising(img, None, 10, 7, 21)
+        # img = cv2.fastNlMeansDenoising(img, None, 10, 7, 21)
         # Normalize the image
         img = img / 255
         img.shape += (1,)
