@@ -2,11 +2,10 @@ import cv2
 import numpy as np
 import pandas as pd
 from keras.applications.inception_resnet_v2 import InceptionResNetV2
+from keras.callbacks import ReduceLROnPlateau, EarlyStopping
 from keras.models import Sequential
-from keras.models import Model
-from keras.callbacks import ModelCheckpoint, LearningRateScheduler, EarlyStopping, ReduceLROnPlateau, TensorBoard
-from keras import optimizers, losses, activations, models
 from keras.layers import Convolution2D, Dense, Input, Flatten, Dropout, MaxPooling2D, BatchNormalization, GlobalAveragePooling2D, Concatenate
+from keras.optimizer_v2.adam import Adam
 from keras.utils.data_utils import Sequence
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle, class_weight
@@ -14,7 +13,7 @@ from sklearn.utils import shuffle, class_weight
 
 def read_data():
     return pd.read_csv(
-        '/media/edutech-pc06/Elements1/DataSet/ClasificacionPorContenido/PhotoChartDigital/dataframe.csv')
+        'dataframe.csv')
 
 
 dataframe = shuffle(read_data())
@@ -65,7 +64,7 @@ class Data_Generator(Sequence):
             img = cv2.resize(src=img, dsize=(256, 256), interpolation=cv2.INTER_AREA)
             # img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 12)
             # Denoise the image
-            img = cv2.fastNlMeansDenoising(img, None, 10, 7, 21)
+            # img = cv2.fastNlMeansDenoising(img, None, 10, 7, 21)
             # Normalize the image
             img = img / 255
             return img
@@ -75,7 +74,7 @@ class Data_Generator(Sequence):
 
 # Preprocess a single image and return an array.
 
-batch_size = 10
+batch_size = 64
 my_training_batch_generator = Data_Generator(x_train, y_train, batch_size)
 
 my_validation_batch_generator = Data_Generator(x_test, y_test, batch_size)
@@ -86,26 +85,29 @@ base_model.trainable = False
 add_model = Sequential()
 add_model.add(base_model)
 add_model.add(GlobalAveragePooling2D())
-add_model.add(Dropout(0.5))
+add_model.add(Dropout(0.35))
 add_model.add(Dense(3,
                     activation='softmax'))
 
 model = add_model
 model.compile(loss='sparse_categorical_crossentropy',
-              optimizer='adam',
+              optimizer=Adam(lr=0.005),
               metrics=['accuracy'])
 model.summary()
+
+reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.2, patience=1, min_lr=0.001)
+early_stop = EarlyStopping(monitor='loss', patience=2)
 
 history = model.fit_generator(my_training_batch_generator,
                               epochs=5,
                               verbose=True,
-                              validation_data=my_validation_batch_generator, class_weight=class_weights)
+                              validation_data=my_validation_batch_generator, class_weight=class_weights,
+                              callbacks=[reduce_lr, early_stop])
 
 model.save_weights('custom_weights.hdf5')
 
 accuracy_training = history.history['accuracy']
 accuracy_testing = history.history['val_accuracy']
-epochs = 1
 
 acc_training = np.array(accuracy_training)
 acc_testing = np.array(accuracy_testing)
