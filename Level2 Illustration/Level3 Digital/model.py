@@ -57,16 +57,11 @@ class Data_Generator(Sequence):
 
     # Preprocess a single image and return an array.
     def preprocess_image(self, directory):
-        # Read image from directory
         img = cv2.imread(directory, cv2.IMREAD_COLOR)
         if img is not None:
-            # Resize the image
             img = cv2.resize(src=img, dsize=(256, 256), interpolation=cv2.INTER_AREA)
-            # img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 12)
-            # Denoise the image
             # img = cv2.fastNlMeansDenoising(img, None, 10, 7, 21)
-            # Normalize the image
-            img = img / 255
+            img = img/255
             return img
         else:
             pass
@@ -74,7 +69,7 @@ class Data_Generator(Sequence):
 
 # Preprocess a single image and return an array.
 
-batch_size = 64
+batch_size = 32
 my_training_batch_generator = Data_Generator(x_train, y_train, batch_size)
 
 my_validation_batch_generator = Data_Generator(x_test, y_test, batch_size)
@@ -85,21 +80,21 @@ base_model.trainable = False
 add_model = Sequential()
 add_model.add(base_model)
 add_model.add(GlobalAveragePooling2D())
-add_model.add(Dropout(0.35))
+add_model.add(Dropout(0.25))
 add_model.add(Dense(3,
                     activation='softmax'))
 
 model = add_model
 model.compile(loss='sparse_categorical_crossentropy',
-              optimizer=Adam(lr=0.005),
+              optimizer=Adam(learning_rate=0.0035),
               metrics=['accuracy'])
 model.summary()
 
-reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.2, patience=1, min_lr=0.001)
-early_stop = EarlyStopping(monitor='loss', patience=2)
+reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.2, patience=2, min_lr=0.001)
+early_stop = EarlyStopping(monitor='loss', patience=3)
 
 history = model.fit_generator(my_training_batch_generator,
-                              epochs=5,
+                              epochs=10,
                               verbose=True,
                               validation_data=my_validation_batch_generator, class_weight=class_weights,
                               callbacks=[reduce_lr, early_stop])
