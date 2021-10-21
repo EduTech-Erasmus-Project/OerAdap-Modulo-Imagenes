@@ -11,7 +11,7 @@ def read_charts():
     for root, dirs, files in os.walk(root_path+'/Chart'):
         for file in files:
             if imghdr.what(os.path.join(root, file)) is not None:
-                image_path_directory[os.path.join(root, file)] = 0
+                image_path_directory[os.path.join(root, file)] = "a"
             else:
                 print(f'Error while reading file: {file}')
 
@@ -20,7 +20,7 @@ def read_digital():
     for root, dirs, files in os.walk(root_path+'/Digital'):
         for file in files:
             if imghdr.what(os.path.join(root, file)) is not None:
-                image_path_directory[os.path.join(root, file)] = 1
+                image_path_directory[os.path.join(root, file)] = "b"
             else:
                 print(f'Error while reading file: {file}')
 
@@ -29,7 +29,7 @@ def read_photo():
     for root, dirs, files in os.walk(root_path+'/Photo'):
         for file in files:
             if imghdr.what(os.path.join(root, file)) is not None:
-                image_path_directory[os.path.join(root, file)] = 2
+                image_path_directory[os.path.join(root, file)] = "c"
             else:
                 print(f'Error while reading file: {file}')
 
